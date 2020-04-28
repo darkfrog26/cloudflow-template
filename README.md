@@ -1,4 +1,4 @@
-# mw-cf-streamlet
+# cloudflow-template
 
 ## sensor-data example
 
