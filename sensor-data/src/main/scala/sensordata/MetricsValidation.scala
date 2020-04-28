@@ -25,7 +25,7 @@ import cloudflow.streamlets.avro._
 
 class MetricsValidation extends AkkaStreamlet {
   val in: AvroInlet[Metric] = AvroInlet[Metric]("in")
-  val invalid: AvroOutlet[InvalidMetric] = AvroOutlet[InvalidMetric]("invalid").withPartitioner(metric ⇒ metric.metric.deviceId.toString)
+  val invalid: AvroOutlet[InvalidMetric] = AvroOutlet[InvalidMetric]("invalid").withPartitioner(metric => metric.metric.deviceId.toString)
   val valid: AvroOutlet[Metric] = AvroOutlet[Metric]("valid").withPartitioner(RoundRobinPartitioner)
   val shape: StreamletShape = StreamletShape(in).withOutlets(invalid, valid)
 

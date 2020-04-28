@@ -9,8 +9,8 @@ trait InstantJsonSupport extends DefaultJsonProtocol {
     def write(instant: Instant): JsValue = JsNumber(instant.toEpochMilli)
 
     def read(json: JsValue): Instant = json match {
-      case JsNumber(value) ⇒ Instant.ofEpochMilli(value.toLong)
-      case other           ⇒ deserializationError(s"Expected Instant as JsNumber, but got: $other")
+      case JsNumber(value) => Instant.ofEpochMilli(value.toLong)
+      case other => deserializationError(s"Expected Instant as JsNumber, but got: $other")
     }
   }
 }

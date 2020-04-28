@@ -11,8 +11,8 @@ trait UUIDJsonSupport extends DefaultJsonProtocol {
     def write(uuid: UUID): JsValue = JsString(uuid.toString)
 
     def read(json: JsValue): UUID = json match {
-      case JsString(uuid) ⇒ Try(UUID.fromString(uuid)).getOrElse(deserializationError(s"Expected valid UUID but got '$uuid'."))
-      case other          ⇒ deserializationError(s"Expected UUID as JsString, but got: $other")
+      case JsString(uuid) => Try(UUID.fromString(uuid)).getOrElse(deserializationError(s"Expected valid UUID but got '$uuid'."))
+      case other => deserializationError(s"Expected UUID as JsString, but got: $other")
     }
   }
 }

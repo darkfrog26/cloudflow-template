@@ -25,10 +25,10 @@ import cloudflow.streamlets.avro._
 class ValidMetricLogger extends AkkaStreamlet {
   private val inlet: AvroInlet[Metric] = AvroInlet[Metric]("in")
   private val LogLevel: RegExpConfigParameter = RegExpConfigParameter(
-    "log-level",
-    "Provide one of the following log levels, debug, info, warning or error",
-    "^debug|info|warning|error$",
-    Some("debug")
+    key = "log-level",
+    description = "Provide one of the following log levels, debug, info, warning or error",
+    pattern = "^debug|info|warning|error$",
+    defaultValue = Some("debug")
   )
   private val MsgPrefix: StringConfigParameter = StringConfigParameter("msg-prefix", "Provide a prefix for the log lines", Some("valid-logger"))
 
@@ -37,11 +37,11 @@ class ValidMetricLogger extends AkkaStreamlet {
   override def configParameters = Vector(LogLevel, MsgPrefix)
 
   override def createLogic: AkkaStreamletLogic = new RunnableGraphStreamletLogic() {
-    private val logF: String ⇒ Unit = streamletConfig.getString(LogLevel.key).toLowerCase match {
-      case "debug"   ⇒ system.log.debug _
-      case "info"    ⇒ system.log.info _
-      case "warning" ⇒ system.log.warning _
-      case "error"   ⇒ system.log.error _
+    private val logF: String => Unit = streamletConfig.getString(LogLevel.key).toLowerCase match {
+      case "debug" => system.log.debug _
+      case "info" => system.log.info _
+      case "warning" => system.log.warning _
+      case "error" => system.log.error _
     }
 
     private val msgPrefix: String = streamletConfig.getString(MsgPrefix.key)

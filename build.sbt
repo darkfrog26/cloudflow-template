@@ -1,4 +1,4 @@
-val baseName = "mw-cloudflow-template"
+val baseName = "cloudflow-template"
 
 name := baseName
 organization in ThisBuild := "com.hbc"
