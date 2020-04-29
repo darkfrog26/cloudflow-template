@@ -1,43 +1,102 @@
-val baseName = "cloudflow-template"
 
-name := baseName
-organization in ThisBuild := "com.hbc"
-version in ThisBuild := "1.0.0-SNAPSHOT"
-scalaVersion in ThisBuild := "2.12.11"
-scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation", "-feature")
+import sbt._
+import sbt.Keys._
 
-val akkaStreamAlpakkaFileVersion = "1.1.2"
-val akkaVersion = "10.1.11"
-val logbackVersion = "1.2.3"
-
-lazy val root = project.in(file("."))
-  .aggregate(core, sensorData, app)
-  .settings(
-    publish := {},
-    publishLocal := {}
-  )
-
-lazy val core = project.in(file("core"))
-  .settings(
-    name := s"$baseName-core",
-    libraryDependencies ++= Seq(
-      "com.lightbend.akka" %% "akka-stream-alpakka-file" % akkaStreamAlpakkaFileVersion,
-      "com.typesafe.akka" %% "akka-http-spray-json" % akkaVersion,
-      "ch.qos.logback" %  "logback-classic" % logbackVersion,
-      "com.typesafe.akka" %% "akka-http-testkit" % akkaVersion % "test"
+lazy val root =
+  Project(id = "root", base = file("."))
+    .enablePlugins(ScalafmtPlugin)
+    .settings(
+      name := "root",
+      scalafmtOnCompile := true,
+      skip in publish := true
     )
-  )
+    .withId("root")
+    .settings(commonSettings)
+    .aggregate(
+      sensorDataApp,
+      sensorDataModel,
+      sensorDataIngress,
+      sensorDataMetrics,
+      sensorDataValidation,
+      sensorDataLogging
+    )
 
-lazy val sensorData = project.in(file("sensor-data"))
-  .enablePlugins(CloudflowAkkaStreamsApplicationPlugin)
+lazy val sensorDataApp = appModule("sensor-data-app")
+  .enablePlugins(CloudflowApplicationPlugin)
+  .settings(commonSettings)
   .settings(
-    name := s"$baseName-sensor-data"
+    name := "sensor-data-app"
   )
-  .dependsOn(core)
+  .dependsOn(sensorDataIngress, sensorDataMetrics, sensorDataValidation, sensorDataLogging)
 
-lazy val app = project.in(file("app"))
-  .enablePlugins(CloudflowAkkaStreamsApplicationPlugin)
+lazy val sensorDataIngress = appModule("sensor-data-ingress")
+  .enablePlugins(CloudflowAkkaStreamsLibraryPlugin)
   .settings(
-    name := s"$baseName-app"
+    commonSettings,
+    libraryDependencies ++= commonDependencies
   )
-  .dependsOn(sensorData)
+  .dependsOn(sensorDataModel)
+
+lazy val sensorDataMetrics = appModule("sensor-data-metrics")
+  .enablePlugins(CloudflowAkkaStreamsLibraryPlugin)
+  .settings(
+    commonSettings,
+    libraryDependencies ++= commonDependencies
+  )
+  .dependsOn(sensorDataModel)
+
+lazy val sensorDataValidation = appModule("sensor-data-validation")
+  .enablePlugins(CloudflowAkkaStreamsLibraryPlugin)
+  .settings(
+    commonSettings,
+    libraryDependencies ++= commonDependencies
+  )
+  .dependsOn(sensorDataModel)
+
+lazy val sensorDataLogging = appModule("sensor-data-logging")
+  .enablePlugins(CloudflowAkkaStreamsLibraryPlugin)
+  .settings(
+    commonSettings,
+    libraryDependencies ++= commonDependencies
+  )
+  .dependsOn(sensorDataModel)
+
+lazy val sensorDataModel = appModule("sensor-data-model")
+  .enablePlugins(CloudflowLibraryPlugin)
+
+def appModule(moduleID: String): Project = {
+  Project(id = moduleID, base = file(moduleID))
+    .settings(
+      name := moduleID
+    )
+    .withId(moduleID)
+    .settings(commonSettings)
+}
+
+lazy val commonDependencies = Seq(
+  "com.typesafe.akka"         %% "akka-http-spray-json"   % "10.1.10",
+  "ch.qos.logback"            %  "logback-classic"        % "1.2.3",
+  "org.scalatest"             %% "scalatest"              % "3.0.8"    % "test"
+)
+
+lazy val commonSettings = Seq(
+  organization := "com.hbc",
+  scalaVersion := "2.12.11",
+  javacOptions += "-Xlint:deprecation",
+  scalacOptions ++= Seq(
+    "-encoding", "UTF-8",
+    "-target:jvm-1.8",
+    "-Xlog-reflective-calls",
+    "-Xlint",
+    "-Ywarn-unused",
+    "-Ywarn-unused-import",
+    "-deprecation",
+    "-feature",
+    "-language:_",
+    "-unchecked"
+  ),
+
+  scalacOptions in (Compile, console) --= Seq("-Ywarn-unused", "-Ywarn-unused-import"),
+  scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value
+
+)
