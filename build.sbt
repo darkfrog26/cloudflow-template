@@ -18,6 +18,8 @@ lazy val root = project.in(file("."))
   )
 
 lazy val core = project.in(file("core"))
+lazy val sensorData = project.in(file("sensor-data"))
+  .enablePlugins(CloudflowAkkaStreamsLibraryPlugin)
   .settings(
     name := s"$baseName-core",
     libraryDependencies ++= Seq(
