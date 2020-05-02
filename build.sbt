@@ -11,31 +11,7 @@ val akkaVersion = "10.1.11"
 val logbackVersion = "1.2.3"
 
 lazy val root = project.in(file("."))
-  .aggregate(core, sensorData, app)
-  .settings(
-    publish := {},
-    publishLocal := {}
-  )
-
-lazy val core = project.in(file("core"))
-lazy val sensorData = project.in(file("sensor-data"))
-  .enablePlugins(CloudflowAkkaStreamsLibraryPlugin)
-  .settings(
-    name := s"$baseName-core",
-    libraryDependencies ++= Seq(
-      "com.lightbend.akka" %% "akka-stream-alpakka-file" % akkaStreamAlpakkaFileVersion,
-      "com.typesafe.akka" %% "akka-http-spray-json" % akkaVersion,
-      "ch.qos.logback" %  "logback-classic" % logbackVersion,
-      "com.typesafe.akka" %% "akka-http-testkit" % akkaVersion % "test"
-    )
-  )
-
-lazy val sensorData = project.in(file("sensor-data"))
-  .enablePlugins(CloudflowAkkaStreamsApplicationPlugin)
-  .settings(
-    name := s"$baseName-sensor-data"
-  )
-  .dependsOn(core)
+  .aggregate(app, sensorData)
 
 lazy val app = project.in(file("app"))
   .enablePlugins(CloudflowAkkaStreamsApplicationPlugin)
@@ -43,3 +19,13 @@ lazy val app = project.in(file("app"))
     name := s"$baseName-app"
   )
   .dependsOn(sensorData)
+
+lazy val sensorData = project.in(file("sensor-data"))
+  .enablePlugins(CloudflowAkkaStreamsLibraryPlugin)
+  .settings(
+    name := s"$baseName-sensor-data",
+    libraryDependencies ++= Seq(
+      "com.typesafe.akka" %% "akka-http-spray-json" % akkaVersion,
+      "ch.qos.logback" %  "logback-classic" % logbackVersion,
+    )
+  )
