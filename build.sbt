@@ -1,7 +1,7 @@
 val baseName = "cloudflow-template"
 
 name := baseName
-organization in ThisBuild := "com.hbc"
+organization in ThisBuild := "com.lightbend"
 version in ThisBuild := "1.0.0-SNAPSHOT"
 scalaVersion in ThisBuild := "2.12.11"
 scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation", "-feature")
