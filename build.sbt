@@ -9,16 +9,10 @@ scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation", "-feature")
 val akkaStreamAlpakkaFileVersion = "1.1.2"
 val akkaVersion = "10.1.11"
 val logbackVersion = "1.2.3"
+val youiVersion = "0.13.9"
 
 lazy val root = project.in(file("."))
-  .aggregate(app, sensorData)
-
-lazy val app = project.in(file("app"))
-  .enablePlugins(CloudflowAkkaStreamsApplicationPlugin)
-  .settings(
-    name := s"$baseName-app"
-  )
-  .dependsOn(sensorData)
+  .aggregate(sensorData, app, client)
 
 lazy val sensorData = project.in(file("sensor-data"))
   .enablePlugins(CloudflowAkkaStreamsLibraryPlugin)
@@ -27,5 +21,20 @@ lazy val sensorData = project.in(file("sensor-data"))
     libraryDependencies ++= Seq(
       "com.typesafe.akka" %% "akka-http-spray-json" % akkaVersion,
       "ch.qos.logback" %  "logback-classic" % logbackVersion,
+    )
+  )
+
+lazy val app = project.in(file("app"))
+  .enablePlugins(CloudflowAkkaStreamsApplicationPlugin)
+  .settings(
+    name := s"$baseName-app"
+  )
+  .dependsOn(sensorData)
+
+lazy val client = project.in(file("client"))
+  .settings(
+    name := s"$baseName-client",
+    libraryDependencies ++= Seq(
+      "io.youi" %% "youi-client" % youiVersion
     )
   )
